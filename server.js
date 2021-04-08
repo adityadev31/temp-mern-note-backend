@@ -5,7 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const PORT = process.env.PORT;
 const DBURL = process.env.DBURL;
-const encrypt = require('mongoose-encryption');
+// const encrypt = require('mongoose-encryption');
 const app = express();
 
 // switches

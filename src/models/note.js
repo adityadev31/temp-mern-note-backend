@@ -26,7 +26,7 @@ const noteSchema = mongoose.Schema({
 
 // encrypting
 var secret = process.env.MONGOOSE_ENCRYPTION_KEY;
-userSchema.plugin(encrypt, { secret: secret , encryptedFields: ['title', 'content']});
+noteSchema.plugin(encrypt, { secret: secret , encryptedFields: ['title', 'content']});
 
 // export
 module.exports = mongoose.model("Note", noteSchema);

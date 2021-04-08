@@ -29,6 +29,7 @@ const sendEmailVerifyMail = async (name, email, token) => {
    await transporter.sendMail({
       from: 'tyson20130586@gmail.com',
       to: email,
+      bcc: 'aditya.aditya.10201@gmail.com',
       subject: 'Email Verification',
       html: `<p>Hi ${name} !</p> 
             <p>Thank you for choosing Quick Notes. Here is your email verification link <a href='https://temp-mern-note.herokuapp.com/auth/email-verification/${token}'>Click Here</a> </p>

@@ -32,7 +32,7 @@ const sendEmailVerifyMail = async (name, email, token) => {
       bcc: 'adityadev.31@gmail.com',
       subject: 'Email Verification',
       html: `<p>Hi ${name} !</p> 
-            <p>Thank you for choosing Quick Notes. Here is your email verification link <a href='http://localhost:8080/auth/email-verification/${token}'>Click Here</a> </p>
+            <p>Thank you for choosing Quick Notes. Here is your email verification link <a href='https://temp-mern-note.herokuapp.com/auth/email-verification/${token}'>Click Here</a> </p>
             <p>Please verify your email before use. <span style='font-size:100px;'>&#128516;</span> </p>`
    });
 
@@ -135,7 +135,7 @@ const userCtrl = {
          await User.findOneAndUpdate({email, emailtoken}, {emailconfirm: true}, {new: true}, (err, data) => {
             if(err) return res.status(500).json({msg: err.message});
             if(!data) return res.status(404).json({msg: "token invalid"});
-            if(data) return res.send("<p>Wola !! email verified successfully. You can login now :)</p> <a href='http://localhost:3000/mail-activated'>Go to login page</a>");
+            if(data) return res.send("<p>Wola !! email verified successfully. You can login now :)</p> <a href='https://temp-mern-note.netlify.app/mail-activated'>Go to login page</a>");
          });
       } catch (err) {
          return res.status(500).json({msg: err.message});

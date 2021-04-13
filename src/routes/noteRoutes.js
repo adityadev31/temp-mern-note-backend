@@ -9,6 +9,7 @@ router.get("/:id", Auth, noteCtrl.getOne);
 router.post("/", Auth, noteCtrl.post);
 router.put("/:id", Auth, noteCtrl.edit);
 router.delete("/:id", Auth, noteCtrl.delete);
+router.delete("/delete/all", Auth, noteCtrl.deleteAll);
 
 // export
 module.exports = router;

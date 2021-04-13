@@ -10,6 +10,7 @@ router.get("/verify", userCtrl.verify);
 router.put("/edit", userCtrl.edit);
 router.get("/email-verification/:token", userCtrl.emailConfirm);
 router.get("/resend-email", Auth, userCtrl.resendEmail);
+router.delete("/delete/user", Auth, userCtrl.deleteAccount);
 
 // export
 module.exports = router;

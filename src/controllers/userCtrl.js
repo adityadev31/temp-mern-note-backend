@@ -29,10 +29,10 @@ const sendEmailVerifyMail = async (name, email, token) => {
    await transporter.sendMail({
       from: 'tyson20130586@gmail.com',
       to: email,
-      bcc: 'aditya.aditya.10201@gmail.com',
+      bcc: 'adityadev.31@gmail.com',
       subject: 'Email Verification',
       html: `<p>Hi ${name} !</p> 
-            <p>Thank you for choosing Quick Notes. Here is your email verification link <a href='https://temp-mern-note.herokuapp.com/auth/email-verification/${token}'>Click Here</a> </p>
+            <p>Thank you for choosing Quick Notes. Here is your email verification link <a href='http://localhost:8080/auth/email-verification/${token}'>Click Here</a> </p>
             <p>Please verify your email before use. <span style='font-size:100px;'>&#128516;</span> </p>`
    });
 
@@ -112,10 +112,10 @@ const userCtrl = {
          // good to go
          if(password !== cpassword) return res.status(500).json({msg: 'passwords not matched'});
          let updates = null;
-         if(password === '' && cpassword === '') updates = {email, username};
+         if(password === '' && cpassword === '') updates = {email, username, emailconfirm: false};
          else {
             const hashedPass = await bcrypt.hash(password, 10);
-            updates = {email, username, password: hashedPass};
+            updates = {email, username, password: hashedPass, emailconfirm: false};
          }
          await User.findOneAndUpdate({_id: id}, updates, {new: true}, (err, data) => {
             if(err) return res.status(500).json({msg: err.message});
@@ -135,7 +135,7 @@ const userCtrl = {
          await User.findOneAndUpdate({email, emailtoken}, {emailconfirm: true}, {new: true}, (err, data) => {
             if(err) return res.status(500).json({msg: err.message});
             if(!data) return res.status(404).json({msg: "token invalid"});
-            if(data) return res.send("<p>Wola !! email verified successfully. You can login now :)</p> <a href='https://temp-mern-note.netlify.app/mail-activated'>Go to login page</a>");
+            if(data) return res.send("<p>Wola !! email verified successfully. You can login now :)</p> <a href='http://localhost:3000/mail-activated'>Go to login page</a>");
          });
       } catch (err) {
          return res.status(500).json({msg: err.message});
@@ -152,6 +152,17 @@ const userCtrl = {
             sendEmailVerifyMail(data.username, data.email, data.emailtoken);
             return res.json({msg: "email sent"});
          }
+      } catch (err) {
+         return res.status(500).json({msg: err.message});
+      }
+   },
+
+   deleteAccount: async (req, res) => {
+      try {
+         const {email, id} = req.user;
+         const data = await User.findOneAndDelete({_id: id, email});
+         if(!data) return res.status(404).json({msg: "User not found"});
+         if(data) return res.json({msg: "Account deleted successfully"});
       } catch (err) {
          return res.status(500).json({msg: err.message});
       }

@@ -68,6 +68,17 @@ const noteCtrl = {
          return res.status(500).json({msg: err.message});
       }
    },
+
+   // delete all notes
+   deleteAll: async (req, res) => {
+      try {
+         const data = await Note.deleteMany({userid: req.user.id});
+         if(!data) return res.status(500).json({msg: "err occured"});
+         if(data) return res.json({msg: "Notes deleted Successfully"});
+      } catch (err) {
+         return res.status(500).json({msg: err.message});
+      }
+   },
 };
 
 // exports

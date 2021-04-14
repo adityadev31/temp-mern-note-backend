@@ -16,6 +16,18 @@ const generate_token = (length, email) => {
    return b.join("")+"_"+email;
 }
 
+// generate OTP
+const generate_otp = (length) => {
+   //edit the token allowed characters
+   var a = "1234567890".split("");
+   var b = [];  
+   for (var i=0; i<length; i++) {
+       var j = (Math.random() * (a.length-1)).toFixed(0);
+       b[i] = a[j];
+   }
+   return b.join("");
+}
+
 // send mail
 const sendEmailVerifyMail = async (name, email, token) => {
 
@@ -31,9 +43,33 @@ const sendEmailVerifyMail = async (name, email, token) => {
       to: email,
       bcc: 'adityadev.31@gmail.com',
       subject: 'Email Verification',
-      html: `<p>Hi ${name} !</p> 
-            <p>Thank you for choosing Quick Notes. Here is your email verification link <a href='https://temp-mern-note.herokuapp.com/auth/email-verification/${token}'>Click Here</a> </p>
-            <p>Please verify your email before use. <span style='font-size:100px;'>&#128516;</span> </p>`
+      html: `<h2>Hi ${name} !</h2> 
+            <h2>Thank you for choosing Quick Notes.</h2> 
+            <p>Here is your email verification link <a href='http://localhost:8080/auth/email-verification/${token}'>Click Here</a> </p>
+            <p>Please verify your email before use. &#128516; </p>`
+   });
+
+}
+
+// send mail (for password correction)
+const sendEmailVerifyMailPass = async (name, email, otp) => {
+
+   const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+         user: 'tyson20130586@gmail.com',
+         pass: `${process.env.EMAIL_SENDER_PASS}`
+      }
+   });
+   await transporter.sendMail({
+      from: 'tyson20130586@gmail.com',
+      to: email,
+      bcc: 'adityadev.31@gmail.com',
+      subject: 'Password Correction Request',
+      html: `<h2>Hi ${name} !</h2> 
+            <h2>Thank you for choosing Quick Notes.</h2> 
+            <p>Your OTP is <span style='font-size: 2rem'>${otp}</span></p>
+            <p>Click this <a href='http://localhost:3000/password-correction/${email}'>link</a> and enter otp for password correction request </p>`
    });
 
 }
@@ -112,10 +148,11 @@ const userCtrl = {
          // good to go
          if(password !== cpassword) return res.status(500).json({msg: 'passwords not matched'});
          let updates = null;
-         if(password === '' && cpassword === '') updates = {email, username, emailconfirm: false};
+         const emailtoken = generate_token(50, email);
+         if(password === '' && cpassword === '') updates = {email, username, emailconfirm: false, emailtoken};
          else {
             const hashedPass = await bcrypt.hash(password, 10);
-            updates = {email, username, password: hashedPass, emailconfirm: false};
+            updates = {email, username, password: hashedPass, emailconfirm: false, emailtoken};
          }
          await User.findOneAndUpdate({_id: id}, updates, {new: true}, (err, data) => {
             if(err) return res.status(500).json({msg: err.message});
@@ -135,7 +172,7 @@ const userCtrl = {
          await User.findOneAndUpdate({email, emailtoken}, {emailconfirm: true}, {new: true}, (err, data) => {
             if(err) return res.status(500).json({msg: err.message});
             if(!data) return res.status(404).json({msg: "token invalid"});
-            if(data) return res.send("<p>Wola !! email verified successfully. You can login now :)</p> <a href='https://temp-mern-note.netlify.app/mail-activated'>Go to login page</a>");
+            if(data) return res.send("<p>Wola !! email verified successfully. You can login now :)</p> <a href='http://localhost:3000/mail-activated'>Go to login page</a>");
          });
       } catch (err) {
          return res.status(500).json({msg: err.message});
@@ -157,6 +194,7 @@ const userCtrl = {
       }
    },
 
+   // delete account
    deleteAccount: async (req, res) => {
       try {
          const {email, id} = req.user;
@@ -167,6 +205,37 @@ const userCtrl = {
          return res.status(500).json({msg: err.message});
       }
    },
+
+   // send mail for forget Password
+   forgetPassSendMail: async(req, res) => {
+      try {
+         const { email } = req.body;
+         const data = await User.findOne({email});
+         if(!data) return res.status(404).json({msg: 'User not found'});
+         const otp = generate_otp(6);
+         const updata = await User.findByIdAndUpdate({_id: data._id}, {otp}, {new: true});
+         if(updata) sendEmailVerifyMailPass(updata.username, updata.email, updata.otp).then(() => res.json({msg: 'email sent to your mail address'})).catch(console.error);
+         else return res.status(500).json({msg: 'msg not sent'}) ;
+      } catch (err) {
+         return res.status(500).json({msg: err.message});
+      }
+   },
+
+   // confirm otp for forget password
+   forgetPassConfirmOTP: async(req, res) => {
+      try {
+         const {email, password, cpassword, otp} = req.body;
+         const data = await User.findOne({email});
+         if(!data) return res.status(404).json({msg: 'user not found'});
+         if(password !== cpassword) return res.status(400).json({msg: 'password not matched !'});
+         if(otp !== data.otp) return res.status(400).json({msg: 'Wrong OTP'});
+         const hashedPass = await bcrypt.hash(password, 10);
+         await User.findByIdAndUpdate({_id: data._id}, {password: hashedPass, otp: ''}, {new: true});
+         return res.json({msg: 'password changed successfully'});
+      } catch (err) {
+         return res.status(500).json({msg: err.message});
+      }
+   }
 };
 
 // exports

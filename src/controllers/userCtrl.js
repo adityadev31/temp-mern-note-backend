@@ -45,7 +45,7 @@ const sendEmailVerifyMail = async (name, email, token) => {
       subject: 'Email Verification',
       html: `<h2>Hi ${name} !</h2> 
             <h2>Thank you for choosing Quick Notes.</h2> 
-            <p>Here is your email verification link <a href='http://localhost:8080/auth/email-verification/${token}'>Click Here</a> </p>
+            <p>Here is your email verification link <a href='https://temp-mern-note.herokuapp.com/auth/email-verification/${token}'>Click Here</a> </p>
             <p>Please verify your email before use. &#128516; </p>`
    });
 
@@ -69,7 +69,7 @@ const sendEmailVerifyMailPass = async (name, email, otp) => {
       html: `<h2>Hi ${name} !</h2> 
             <h2>Thank you for choosing Quick Notes.</h2> 
             <p>Your OTP is <span style='font-size: 2rem'>${otp}</span></p>
-            <p>Click this <a href='http://localhost:3000/password-correction/${email}'>link</a> and enter otp for password correction request </p>`
+            <p>Click this <a href='https://temp-mern-note.netlify.app/password-correction/${email}'>link</a> and enter otp for password correction request </p>`
    });
 
 }
@@ -172,7 +172,7 @@ const userCtrl = {
          await User.findOneAndUpdate({email, emailtoken}, {emailconfirm: true}, {new: true}, (err, data) => {
             if(err) return res.status(500).json({msg: err.message});
             if(!data) return res.status(404).json({msg: "token invalid"});
-            if(data) return res.send("<p>Wola !! email verified successfully. You can login now :)</p> <a href='http://localhost:3000/mail-activated'>Go to login page</a>");
+            if(data) return res.send("<p>Wola !! email verified successfully. You can login now :)</p> <a href='https://temp-mern-note.netlify.app/mail-activated'>Go to login page</a>");
          });
       } catch (err) {
          return res.status(500).json({msg: err.message});
